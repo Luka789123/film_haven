@@ -12,7 +12,7 @@ import kotlin.jvm.Throws
     @SerializedName("backdrop_path")
     val backdropPath: String = "",
     val id: Long = 0L,
-    private val title: String = "",
+    val title: String = "",
     @SerializedName("original_title")
     val originalTitle: String = "",
     val overview: String = "",

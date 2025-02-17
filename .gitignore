@@ -14,3 +14,4 @@
 .cxx
 local.properties
 .idea
+app/src/main/java/hr/tvz/filmhaven/core/Constants.kt

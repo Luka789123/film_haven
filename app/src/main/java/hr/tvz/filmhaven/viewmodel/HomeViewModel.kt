@@ -1,5 +1,6 @@
 package hr.tvz.filmhaven.viewmodel
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
@@ -9,6 +10,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import hr.tvz.filmhaven.core.state.HomeMovieState
 import hr.tvz.filmhaven.domainobject.Genre
 import hr.tvz.filmhaven.domainobject.Movie
+import hr.tvz.filmhaven.domainobject.MoviePage
 import hr.tvz.filmhaven.domainobject.Show
 import hr.tvz.filmhaven.repository.HomeMovieRepository
 import kotlinx.coroutines.launch
@@ -31,14 +33,15 @@ class HomeViewModel
             viewModelScope.launch {
 
                 try {
-                    _state.value = HomeMovieState(isLoading = true)
+                    _state.value = _state.value.copy(isLoading = true)
                     var movies:List<Movie> =   repository.getTrendingMovies().items
                     var shows:List<Show> = repository.getTrendingTvShows().items
+                    val genres:List<Genre> = repository.getMovieCategories().genres
                     val categories:Map<Long,Genre> =
-                        repository.getMovieCategories().genres.associateBy { it.id }
+                        genres.associateBy { it.id }
                    movies = movies.map { e ->  e.copy(genres = e.genreIds.mapNotNull { id -> categories[id] }) }
                  shows =   shows.map { e ->  e.copy(genres = e.genreIds.mapNotNull { id -> categories[id] }) }
-                    _state.value = HomeMovieState(tvShows = shows,movies = movies, isLoading = false, movieOfTheWeek = getMovieOfTheWeek(movies))
+                    _state.value = _state.value.copy(tvShows = shows,movies = movies, isLoading = false, movieOfTheWeek = getMovieOfTheWeek(movies), genres = genres)
                 }catch (
                     e:Exception
                 ){
@@ -56,6 +59,29 @@ class HomeViewModel
         }
             return movieOfTheWeek
         }
+
+    fun searchMovies(query:String){
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isLoading = true, isSearchActive = query.length > 2)
+            try {
+
+                if (query.length > 2){
+                    var movies:List<Movie> =   repository.searchForMovie(query).items
+                    val categories:Map<Long,Genre> =
+                        _state.value.genres.associateBy { it.id }
+                    movies = movies.map { e ->  e.copy( genres = e.genreIds.mapNotNull { id -> categories[id] },
+                        backdropPath = e.backdropPath ?: "",
+                        posterPath = e.posterPath ?: "",
+                        title = e.title ?: "",
+                        overview = e.overview ?: "") }
+                    _state.value = _state.value.copy( searchResults = movies)
+                }
+                _state.value = _state.value.copy(isLoading = false)
+
+        } catch (e:Exception){
+            _state.value = _state.value.copy(error = e.message)
+        } }
+    }
 
 
     }

@@ -5,6 +5,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import hr.tvz.filmhaven.core.Constants
+import hr.tvz.filmhaven.repository.DiscoverMovieRepository
 import hr.tvz.filmhaven.repository.HomeMovieRepository
 import okhttp3.OkHttpClient
 import retrofit2.converter.gson.GsonConverterFactory
@@ -20,14 +21,21 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideMovieDBApi(client: OkHttpClient):HomeMovieRepository{
+    fun providesRetrofit(client: OkHttpClient):Retrofit{
         return Retrofit
             .Builder()
             .baseUrl(Constants.BASE_URL)
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-            .create(HomeMovieRepository::class.java);
+    }
+
+
+    @Provides
+    @Singleton
+    fun provideMovieDBApi(retrofit: Retrofit):HomeMovieRepository{
+
+         return retrofit.create(HomeMovieRepository::class.java)
     }
 
     @Provides
@@ -37,5 +45,9 @@ object AppModule {
     }
 
 
-
+    @Provides
+    @Singleton
+    fun provideDiscoverRepository(retrofit: Retrofit):DiscoverMovieRepository{
+        return retrofit.create(DiscoverMovieRepository::class.java)
+    }
 }

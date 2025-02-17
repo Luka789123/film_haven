@@ -3,8 +3,9 @@ package hr.tvz.filmhaven.domainobject
 import com.google.gson.annotations.SerializedName
 import hr.tvz.filmhaven.core.Constants
 import org.intellij.lang.annotations.Language
+import java.util.Locale
 
- data class Show(
+data class Show(
      @SerializedName("backdrop_path")
     val backdropPath:String,
     val id:Long,
@@ -30,7 +31,14 @@ import org.intellij.lang.annotations.Language
      val genreIds:List<Long>,
      @Transient
      val genres:List<Genre>
-) : FeaturedItemContent{
+) : FeaturedItemContent,FeaturedMovie{
+     override fun getDescription(): String {
+        return  overview
+     }
+
+     override fun getRating(): String {
+         return String.format(Locale.GERMAN,"%.1f", voteAverage)
+     }
 
      override fun getItemTitle(): String {
          return name
@@ -42,7 +50,10 @@ import org.intellij.lang.annotations.Language
 
      override fun getGenre(): String {
          var genreString:List<String> = emptyList();
-         if (genres.size > 2){
+         if (genres == null){
+             return  "No genres"
+         }
+         if ( genres.size > 2){
              return "${genres.first().name} | ${genres.last().name}"
          }
          val builder:StringBuilder = StringBuilder();
