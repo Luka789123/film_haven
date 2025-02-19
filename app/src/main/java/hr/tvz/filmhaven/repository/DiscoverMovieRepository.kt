@@ -19,11 +19,28 @@ interface DiscoverMovieRepository {
     @GET("discover/movie?include_adult=true&include_video=false&language=en-US&page=1&sort_by=popularity.desc")
     suspend fun getFilteredMovieContentByCategory(@Query("with_genres") genres:String):MoviePage
 
+    @GET("discover/movie?include_adult=true&include_video=false&language=en-US&sort_by=popularity.desc")
+    suspend fun getFilteredMovieContentByCategory(@Query("with_genres") genres:String,@Query("page") page:Int):MoviePage
+
+    @GET("discover/movie?include_adult=true&include_video=false&language=en-US")
+    suspend fun getFilteredMovieContentByCategory(@Query("with_genres") genres:String,@Query("page") page:Int,@Query("sort_by") sortKey:String):MoviePage
+
+    @GET("discover/movie?include_adult=true&include_video=false&language=en-US&sort_by=popularity.desc")
+    suspend fun getFilteredMovieContentByCategory(@Query("page") page:Int):MoviePage
+
+
     @GET("discover/tv?include_adult=true&language=en-US&page=1&sort_by=popularity.desc")
     suspend fun getFilteredShowContent():ShowPage
 
     @GET("discover/tv?include_adult=true&include_video=false&language=en-US&page=1&sort_by=popularity.desc")
     suspend fun getFilteredShowContentByCategory(@Query("with_genres") genres:String):ShowPage
+
+    @GET("discover/tv?include_adult=true&include_video=false&language=en-US&sort_by=popularity.desc")
+    suspend fun getFilteredShowContentByCategory(@Query("with_genres") genres:String,@Query("page") page:Int):ShowPage
+
+    @GET("discover/tv?include_adult=true&include_video=false&language=en-US")
+    suspend fun getFilteredShowContentByCategory(@Query("with_genres") genres:String,@Query("page") page:Int,@Query("sort_by") sortKey:String):ShowPage
+
 
     @GET("discover/movie?include_adult=true&language=en-US&page=1&sort_by=popularity.desc")
     suspend fun getFilteredTvShowContent():MoviePage

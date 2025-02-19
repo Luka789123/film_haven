@@ -27,16 +27,23 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
+import hr.tvz.filmhaven.core.ContentType
 import hr.tvz.filmhaven.domainobject.FeaturedItemContent
 import hr.tvz.filmhaven.domainobject.FeaturedMovie
 import hr.tvz.filmhaven.domainobject.Genre
+import hr.tvz.filmhaven.domainobject.Movie
+import hr.tvz.filmhaven.domainobject.Pagination
+import hr.tvz.filmhaven.domainobject.Show
+import hr.tvz.filmhaven.navigation.DetailsScreenNavigationData
+import hr.tvz.filmhaven.navigation.PaginationScreenNavigationData
 import hr.tvz.filmhaven.ui.widget.FeaturedContentSlider
 import hr.tvz.filmhaven.ui.widget.MovieTile
 import hr.tvz.filmhaven.viewmodel.DiscoverViewModel
 
 
 @Composable
-fun DiscoverScreen(viewModel: DiscoverViewModel = hiltViewModel(), paddingValues: PaddingValues) {
+fun DiscoverScreen(viewModel: DiscoverViewModel = hiltViewModel(),navController: NavController, paddingValues: PaddingValues) {
     val selectedIndex = remember { mutableStateOf(0) }
     val state by viewModel.state.collectAsState()
     Scaffold(
@@ -65,6 +72,8 @@ fun DiscoverScreen(viewModel: DiscoverViewModel = hiltViewModel(), paddingValues
                        genres = state.movieCategories,
                        initialValues = state.initialMovieData,
                        content = state.foundMovies,
+                       navController = navController,
+                       contentType = ContentType.MOVIE,
                        onCategoryClick = { genre: Genre -> viewModel.addMovieCategoryToResultSet(genre) }
                    ) { genre: Genre -> viewModel.removeMovieCategoryFromResultSet(genre) }
                    1->  MovieDiscoverTab(
@@ -73,6 +82,8 @@ fun DiscoverScreen(viewModel: DiscoverViewModel = hiltViewModel(), paddingValues
                        genres = state.tvShowCategory,
                        initialValues = state.initialShowData,
                        content = state.foundTvShows,
+                       navController = navController,
+                      contentType = ContentType.TV_SHOW,
                        onCategoryClick = { genre: Genre -> viewModel.addShowCategoryToResultSet(genre) }
                    ) { genre: Genre -> viewModel.removeShowCategoryFromResultSet(genre) }
                }
@@ -86,6 +97,8 @@ fun MovieDiscoverTab(
     paddingValues: PaddingValues,
     genres: List<Genre>,
     selectedCategories: List<Genre>?,
+    contentType: ContentType,
+    navController: NavController,
     initialValues: List<FeaturedMovie>,
     content: Map<Genre, List<FeaturedItemContent>>,
     onCategoryClick: (genre: Genre) -> Unit,
@@ -112,15 +125,28 @@ fun MovieDiscoverTab(
         }
         if (initialValues.isNotEmpty()) {
             LazyColumn {
-                items(initialValues.size) { i -> MovieTile(initialValues[i]) }
+                items(initialValues.size) { i -> MovieTile(initialValues[i]) {
+                    item -> navController.navigate(DetailsScreenNavigationData(resourceIdentifier = if (item is Movie) item.id.toInt() else (item as Show).id.toInt(),
+                    contentType = contentType ))
+                } }
             }
         } else {
             LazyColumn {
                 items(content.size) { index: Int ->
                     FeaturedContentSlider(
                         featuredItems = content[content.keys.toList()[index]] ?: emptyList(),
-                        blockTitle = content.keys.toList()[index].name
-                    ) { }
+                        blockTitle = content.keys.toList()[index].name,
+                        onTileClicked = {
+                                item -> navController.navigate(DetailsScreenNavigationData(resourceIdentifier = if (item is Movie) item.id.toInt() else (item as Show).id.toInt(),
+                            contentType = contentType ))
+                        }
+                    ) {
+                        navController.navigate(PaginationScreenNavigationData(
+                            title = content.keys.toList()[index].name,
+                            genreId = content.keys.toList()[index].id,
+                            genreName = content.keys.toList()[index].name,
+                            contentType = contentType))
+                    }
                 }
             }
         }

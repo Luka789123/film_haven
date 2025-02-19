@@ -15,6 +15,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import hr.tvz.filmhaven.core.ContentType
+import hr.tvz.filmhaven.domainobject.Movie
+import hr.tvz.filmhaven.domainobject.Show
+import hr.tvz.filmhaven.navigation.DetailsScreenNavigationData
 import hr.tvz.filmhaven.ui.widget.FeaturedContentSlider
 import hr.tvz.filmhaven.ui.widget.FeaturedMovieWidget
 import hr.tvz.filmhaven.ui.widget.PageableList
@@ -41,7 +45,7 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), navController: NavCon
                 }
             }
                if (state.isSearchActive){
-                   PageableList(state.searchResults)
+                   PageableList(items=state.searchResults,navController=navController)
                }
                if (!state.error.isNullOrBlank()){
                    Text(text = state.error)
@@ -51,8 +55,22 @@ fun HomeScreen(viewModel: HomeViewModel = hiltViewModel(), navController: NavCon
                       modifier = Modifier.verticalScroll(rememberScrollState()).padding(horizontal = 10.dp)
                   ) {
                       FeaturedMovieWidget(state.movieOfTheWeek)
-                      FeaturedContentSlider(featuredItems = state.movies, blockTitle = "Trending Movies") { }
-                      FeaturedContentSlider(featuredItems = state.tvShows, blockTitle = "Trending Shows") { }
+                      FeaturedContentSlider(featuredItems = state.movies,
+                          blockTitle = "Trending Movies",
+                          onTileClicked = {item -> navController
+                              .navigate(DetailsScreenNavigationData(
+                                  contentType = ContentType.MOVIE,
+                                    resourceIdentifier = (item as Movie).id.toInt()
+                              ))}) {  }
+                      FeaturedContentSlider(
+                          featuredItems = state.tvShows,
+                          blockTitle = "Trending Shows",
+                          onTileClicked = {item -> navController
+                              .navigate(DetailsScreenNavigationData(
+                                  contentType = ContentType.TV_SHOW,
+                                  resourceIdentifier = (item as Show).id.toInt()
+                              ))}
+                          ) { }
                   }
                }
 

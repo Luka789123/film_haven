@@ -58,10 +58,7 @@ fun HomeRoute(navController: NavController) {
                         icon = Icons.Filled.Explore,
                         label = "Discover",
                         isSelected = pageIndex.value == 1) { pageIndex.value = 1 }
-                    NavBarIcon(
-                        icon = Icons.Filled.Settings,
-                        label = "Settings",
-                        isSelected = pageIndex.value == 2) { pageIndex.value = 2 }
+
                 }
             }
         }
@@ -72,8 +69,8 @@ fun HomeRoute(navController: NavController) {
                     navController = navController,
                     paddingValues = innerPadding
                 )
-                1 -> DiscoverScreen(paddingValues = innerPadding)
-                2 -> Text("Settings")
+                1 -> DiscoverScreen(paddingValues = innerPadding, navController = navController)
+             
             }
         }
     }

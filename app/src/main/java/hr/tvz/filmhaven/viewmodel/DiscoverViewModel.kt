@@ -4,9 +4,12 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import hr.tvz.filmhaven.core.GenreMapper
 import hr.tvz.filmhaven.core.state.DiscoverMovieState
+import hr.tvz.filmhaven.domainobject.FeaturedMovie
 import hr.tvz.filmhaven.domainobject.Genre
 import hr.tvz.filmhaven.domainobject.Movie
+import hr.tvz.filmhaven.domainobject.Pagination
 import hr.tvz.filmhaven.domainobject.Show
 import hr.tvz.filmhaven.repository.DiscoverMovieRepository
 import hr.tvz.filmhaven.repository.HomeMovieRepository
@@ -20,6 +23,7 @@ class DiscoverViewModel @Inject constructor(private val repository: DiscoverMovi
 
     private val _state = MutableStateFlow(DiscoverMovieState())
     val state: StateFlow<DiscoverMovieState> get()  = _state
+    private var _page = 1;
     init {
     setUpInitialData()
     }
@@ -34,7 +38,7 @@ class DiscoverViewModel @Inject constructor(private val repository: DiscoverMovi
            val  newValueList = _state.value.selectedMovieCategories.toMutableList();
            newValueList.add(genre)
            val movieGenreList = _state.value.foundMovies.toMutableMap()
-           val filteredList = mapGenresToMovies(movies = repository.getFilteredMovieContentByCategory("${genre.id}").items, genres = _state.value.movieCategories)
+           val filteredList = GenreMapper.mapGenresToMovies(movies = repository.getFilteredMovieContentByCategory("${genre.id}").items, genres = _state.value.movieCategories)
            movieGenreList[genre] = filteredList
            if (movieGenreList.size <= 1){
                _state.value = _state.value.copy(
@@ -66,7 +70,7 @@ class DiscoverViewModel @Inject constructor(private val repository: DiscoverMovi
             val  newValueList = _state.value.selectedShowCategories.toMutableList();
             newValueList.add(genre)
             val showGenreList = _state.value.foundTvShows.toMutableMap()
-            val filteredList = mapGenresToShows(shows = repository.getFilteredShowContentByCategory("${genre.id}").items, genres = _state.value.tvShowCategory)
+            val filteredList = GenreMapper.mapGenresToShows(shows = repository.getFilteredShowContentByCategory("${genre.id}").items, genres = _state.value.tvShowCategory)
             showGenreList[genre] = filteredList
             if (showGenreList.size <= 1){
                 _state.value = _state.value.copy(
@@ -88,19 +92,6 @@ class DiscoverViewModel @Inject constructor(private val repository: DiscoverMovi
     }
 
 
-    private fun mapGenresToMovies(movies: List<Movie>, genres: List<Genre>): List<Movie> {
-        return movies.mapNotNull { movie ->
-            movie.backdropPath?.let {
-                movie.copy(genres = movie.genreIds.mapNotNull { id -> genres.find { it.id == id } })
-            }
-        }
-    }
-
-    private fun mapGenresToShows(shows: List<Show>, genres: List<Genre>): List<Show> {
-        return shows.mapNotNull { show ->
-            show.copy(genres = show.genreIds.mapNotNull { id -> genres.find { it.id == id } }, mediaType = show.mediaType?: "", backdropPath = show.backdropPath?:"", posterPath = show.posterPath?:"")
-        }
-    }
 
 
     fun removeMovieCategoryFromResultSet(category:Genre){
@@ -116,7 +107,7 @@ class DiscoverViewModel @Inject constructor(private val repository: DiscoverMovi
         }
         else if(_state.value.foundMovies.isEmpty()){
             viewModelScope.launch {
-               _state.value = _state.value.copy(initialMovieData = mapGenresToMovies(repository.getFilteredMovieContent().items,_state.value.movieCategories), isLoading = false)
+               _state.value = _state.value.copy(initialMovieData = GenreMapper.mapGenresToMovies(repository.getFilteredMovieContent().items,_state.value.movieCategories), isLoading = false)
             }
         }
 
@@ -135,7 +126,7 @@ class DiscoverViewModel @Inject constructor(private val repository: DiscoverMovi
         }
         else if(_state.value.foundTvShows.isEmpty()){
             viewModelScope.launch {
-                _state.value = _state.value.copy(initialShowData = mapGenresToShows(repository.getFilteredShowContent().items,_state.value.tvShowCategory), isLoading = false)
+                _state.value = _state.value.copy(initialShowData = GenreMapper.mapGenresToShows(repository.getFilteredShowContent().items,_state.value.tvShowCategory), isLoading = false)
             }
         }
 
@@ -167,8 +158,8 @@ class DiscoverViewModel @Inject constructor(private val repository: DiscoverMovi
                         isLoading = false
                     )
                 _state.value = _state.value.copy(
-                    initialMovieData = mapGenresToMovies(repository.getFilteredMovieContent().items,_state.value.movieCategories),
-                    initialShowData = mapGenresToShows(repository.getFilteredShowContent().items,_state.value.tvShowCategory),
+                    initialMovieData = GenreMapper.mapGenresToMovies(repository.getFilteredMovieContent().items,_state.value.movieCategories),
+                    initialShowData = GenreMapper.mapGenresToShows(repository.getFilteredShowContent().items,_state.value.tvShowCategory),
                 )
 
             } catch (e:Exception){
@@ -176,5 +167,7 @@ class DiscoverViewModel @Inject constructor(private val repository: DiscoverMovi
             }
         }
     }
+
+
 
 }

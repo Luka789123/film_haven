@@ -1,5 +1,6 @@
 package hr.tvz.filmhaven.ui.widget
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -25,9 +26,10 @@ import hr.tvz.filmhaven.domainobject.FeaturedMovie
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun MovieTile(item: FeaturedMovie){
+fun MovieTile(item: FeaturedMovie,onClick:(FeaturedMovie) -> Unit){
     Box (
-        modifier = Modifier.padding(5.dp)
+        modifier = Modifier.padding(5.dp).clickable { onClick(item) }
+
     ) {
         Row {
             GlideImage(

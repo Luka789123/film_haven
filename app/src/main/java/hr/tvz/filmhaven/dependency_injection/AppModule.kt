@@ -5,6 +5,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import hr.tvz.filmhaven.core.Constants
+import hr.tvz.filmhaven.repository.DetailsRepository
 import hr.tvz.filmhaven.repository.DiscoverMovieRepository
 import hr.tvz.filmhaven.repository.HomeMovieRepository
 import okhttp3.OkHttpClient
@@ -49,5 +50,11 @@ object AppModule {
     @Singleton
     fun provideDiscoverRepository(retrofit: Retrofit):DiscoverMovieRepository{
         return retrofit.create(DiscoverMovieRepository::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun provideDetailsRepository(retrofit: Retrofit):DetailsRepository{
+        return  retrofit.create(DetailsRepository::class.java)
     }
 }
