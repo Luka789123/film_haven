@@ -12,7 +12,7 @@ import kotlin.jvm.Throws
     @SerializedName("backdrop_path")
     val backdropPath: String = "",
     val id: Long = 0L,
-    private val title: String = "",
+    val title: String = "",
     @SerializedName("original_title")
     val originalTitle: String = "",
     val overview: String = "",
@@ -33,10 +33,12 @@ import kotlin.jvm.Throws
     val voteCount: Double = 0.0,
     @Transient
     val genres: List<Genre> = emptyList(),
+    @Transient
+    val cast:List<Person>? = emptyList(),
     @SerializedName("genre_ids")
      val genreIds:List<Long> = emptyList()
 
-):FeaturedItemContent,FeaturedMovie{
+):FeaturedItemContent,FeaturedMovie,DetailsContract{
     override fun getDescription(): String {
        return overview
     }
@@ -65,6 +67,39 @@ import kotlin.jvm.Throws
 
     override fun getImagePath(): String {
         return "${Constants.IMAGE_BASE_URL}$posterPath"
+    }
+
+    override fun provideTitle(): String {
+        return title
+    }
+
+    override fun provideGenreString(): String {
+        val stringBuilder = StringBuilder()
+        for (genre in genres){
+            stringBuilder.append(genre.name)
+            stringBuilder.append(" ")
+        }
+        return stringBuilder.toString().trim().replace(" ",",")
+    }
+
+    override fun provideRating(): String {
+        return getRating()
+    }
+
+    override fun provideOverview(): String {
+        return  overview
+    }
+
+    override fun provideCast(): List<Person> {
+        return  cast?: emptyList()
+    }
+
+    override fun provideBackdropPath(): String {
+        return "${Constants.POSTER_IMAGE_URL}$backdropPath"
+    }
+
+    override fun providePoster(): String {
+        return  getImagePath()
     }
 }
 

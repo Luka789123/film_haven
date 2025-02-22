@@ -1,5 +1,6 @@
 package hr.tvz.filmhaven.ui.widget
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 
@@ -21,9 +22,9 @@ import hr.tvz.filmhaven.domainobject.FeaturedItemContent
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun HomeTile(item:FeaturedItemContent){
+fun HomeTile(item:FeaturedItemContent,onclick:(FeaturedItemContent) -> Unit){
     Column (
-        modifier = Modifier.size(width = 107.dp, height = 180.dp).padding(end = 10.dp),
+        modifier = Modifier.size(width = 107.dp, height = 180.dp).padding(end = 10.dp).clickable {  onclick(item) },
 
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
